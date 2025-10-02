@@ -1,0 +1,141 @@
+table medidas
+	lineageTag: e47e7c1f-fbaf-44b9-920e-61c4c926aacf
+
+	measure m_contratacao = COUNTROWS(f_contrato)
+		formatString: 0
+		lineageTag: a5aaa617-f177-437b-b137-0b3fa87f07ee
+
+	measure m_demisssoes =
+			
+			CALCULATE(
+			    [m_contratacao],
+			    f_contrato[Situação] = "Demitido",
+			    USERELATIONSHIP(d_calendario[Data], f_contrato[Data Afastamento])
+			)
+		lineageTag: 5f5ef3bc-e309-4c4d-bb2b-ec0b58f458d2
+
+	measure m_massa_salarial =
+			
+			CALCULATE(
+			    SUM(f_contrato[Valor Salário]),
+			    f_contrato[Situação] <> "Demitido"
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		lineageTag: 35fca92d-d2e0-4e8c-984b-5b1cdc35c7da
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure m_headcount = ```
+			
+			CALCULATE(
+			    [m_contratacao] - [m_demisssoes],
+			    FILTER(
+			        ALL(d_calendario),
+			        d_calendario[Data] <= MAX(d_calendario[Data])
+			    )
+			)
+			    
+			```
+		formatString: 0
+		lineageTag: f167ca14-9828-4bbe-86f9-e874ed41537b
+
+	measure m_contratacao_ruim =
+			
+			CALCULATE(
+			    [m_contratacao],
+			    FILTER(f_contrato,
+			    DATEDIFF(f_contrato[Data Admissão], f_contrato[Data Afastamento], DAY) < 60 && f_contrato[Situação] = "Demitido"))
+		formatString: 0
+		lineageTag: d7f9626b-3aeb-4f0a-9e8c-bca11dc8f6a5
+
+	measure m_contratacao_ruim_% = DIVIDE([m_contratacao_ruim], [m_contratacao])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ad74f1bb-35c7-42dd-846d-d5e82ff32788
+
+	measure m_turnover =
+			
+			DIVIDE([m_demisssoes],
+			CALCULATE([m_headcount], SAMEPERIODLASTYEAR(d_calendario[Data])
+			)
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: f1ac0116-e796-45dd-a70c-c8ecb3a4e140
+
+	measure m_turnover_max_ano =
+			
+			CALCULATE(
+			    [m_turnover],
+			    FILTER(
+			        ALL(d_calendario),
+			        d_calendario[Ano] = MAX(d_calendario[Ano])
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a3abf4f6-129c-4b93-950a-4b1026454eff
+
+	measure m_absenteismo =
+			
+			CALCULATE(
+			    SUM(f_financeiro[Valor]),
+			    f_financeiro[Categoria] = "Absenteísmo"
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		lineageTag: f2ca23f2-5a2a-45da-93c3-8a7afb05a3c6
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure m_horas_normais =
+			
+			CALCULATE(
+			    SUM(f_financeiro[Valor]),
+			    f_financeiro[Categoria] = "Horas Normais"
+			)
+		lineageTag: 67f396f5-5ab8-4786-be8e-8573b7de30bf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure m_absenteismo_% = DIVIDE([m_absenteismo], [m_horas_normais])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 3c3ffc29-2761-43c7-af2b-386eeaa228cb
+
+	measure m_horas_extras =
+			
+			CALCULATE(
+			    SUM(f_financeiro[Valor]),
+			    f_financeiro[Categoria] = "Horas Extras"
+			)
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		lineageTag: 3dfaf3b4-7fea-4ae3-92e8-76da03234f78
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure m_horas_extras_% = DIVIDE([m_horas_extras], [m_horas_normais])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 593c23a2-3b78-4f91-a419-c523a63bd7dd
+
+	measure m_ponto = ```
+			""
+			
+			```
+		lineageTag: 9c9bff74-e152-404a-a6ac-68e330ab7528
+
+	measure m_texto_absenteismo = "Absenteísmo: Significa ausência do trabalhador em seu posto de trabalho, seja por faltas, atrasos ou saídas antecipadas."
+		lineageTag: c1733348-a579-468a-aaf3-0241ba7eda88
+
+	measure m_texto =
+			
+			"Absenteísmo: Significa ausência do trabalhador em seu posto de trabalho, seja por faltas, atrasos ou saídas antecipadas."
+		lineageTag: e4445173-e81a-4c6d-b11e-b5e1c4b10c94
+
+	partition medidas = m
+		mode: import
+		source =
+				let
+				    Fonte = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Coluna 1" = _t]),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(Fonte,{{"Coluna 1", type text}}),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Tipo Alterado",{"Coluna 1"})
+				in
+				    #"Colunas Removidas"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,116 @@
+table d_funcionario
+	lineageTag: c0800079-e7fe-4b81-8312-4ec3fbecaf40
+
+	column 'Cód Funcionário'
+		dataType: int64
+		formatString: 0
+		lineageTag: e5200fa3-0b73-45c4-8006-56ec4f8b5dea
+		summarizeBy: none
+		sourceColumn: Cód Funcionário
+
+		annotation SummarizationSetBy = Automatic
+
+	column Funcionário
+		dataType: string
+		lineageTag: 1ffe05a0-0281-4eb5-8a2d-b9bc21b180fe
+		summarizeBy: none
+		sourceColumn: Funcionário
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sexo
+		dataType: string
+		lineageTag: f9f6f7c2-4d65-4dd5-b05b-fb4dc98e1aa5
+		summarizeBy: none
+		sourceColumn: Sexo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Estado Civil'
+		dataType: string
+		lineageTag: f08f9454-56a7-42e6-b9a6-a7575574eefc
+		summarizeBy: none
+		sourceColumn: Estado Civil
+
+		annotation SummarizationSetBy = Automatic
+
+	column Escolaridade
+		dataType: string
+		lineageTag: ce0845f1-567b-42ea-a9f4-ce6e4e2bf5bd
+		summarizeBy: none
+		sourceColumn: Escolaridade
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Nascimento'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 42158755-1473-4b9f-af7d-1abaa3d3071d
+		summarizeBy: none
+		sourceColumn: Data Nascimento
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Nacionalidade
+		dataType: string
+		lineageTag: 5bf4a5af-d919-4b1a-ae89-e9ffb2055623
+		summarizeBy: none
+		sourceColumn: Nacionalidade
+
+		annotation SummarizationSetBy = Automatic
+
+	column Raça
+		dataType: string
+		lineageTag: 3a54684d-b30c-40f1-9334-4a26812a1937
+		summarizeBy: none
+		sourceColumn: Raça
+
+		annotation SummarizationSetBy = Automatic
+
+	column Idade
+		dataType: int64
+		formatString: 0
+		lineageTag: e08e8b24-b07f-4224-9d92-4b90d0197282
+		summarizeBy: sum
+		sourceColumn: Idade
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Faixa Etária'
+		dataType: string
+		lineageTag: 5f6c5496-58dc-4f20-9e29-c202605e2d52
+		summarizeBy: none
+		sourceColumn: Faixa Etária
+
+		annotation SummarizationSetBy = Automatic
+
+	partition d_funcionario = m
+		mode: import
+		source =
+				let
+				    Fonte = base_contratos,
+				    #"Outras Colunas Removidas" = Table.SelectColumns(Fonte,{"Cód Funcionário", "Funcionário", "Sexo", "Estado Civil", "Escolaridade", "Data Nascimento", "Nacionalidade", "Raça"}),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Outras Colunas Removidas",{{"Data Nascimento", type date}}),
+				    #"Erros Substituídos" = Table.ReplaceErrorValues(#"Tipo Alterado", {{"Data Nascimento", null}}),
+				    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Erros Substituídos",{{"Data Nascimento", type text}}),
+				    #"Valor Substituído" = Table.ReplaceValue(#"Tipo Alterado1","/99","/19",Replacer.ReplaceText,{"Data Nascimento"}),
+				    #"Valor Substituído1" = Table.ReplaceValue(#"Valor Substituído","/29","/19",Replacer.ReplaceText,{"Data Nascimento"}),
+				    #"Valor Substituído2" = Table.ReplaceValue(#"Valor Substituído1","/098","/198",Replacer.ReplaceText,{"Data Nascimento"}),
+				    #"Tipo Alterado2" = Table.TransformColumnTypes(#"Valor Substituído2",{{"Data Nascimento", type date}}),
+				    #"Valor Substituído3" = Table.ReplaceValue(#"Tipo Alterado2","M","Masculino",Replacer.ReplaceText,{"Sexo"}),
+				    #"Valor Substituído4" = Table.ReplaceValue(#"Valor Substituído3","F","Feminino",Replacer.ReplaceText,{"Sexo"}),
+				    #"Idade Inserida" = Table.AddColumn(#"Valor Substituído4", "Idade", each Date.From(DateTime.LocalNow()) - [Data Nascimento], type duration),
+				    #"Total de Anos Calculado" = Table.TransformColumns(#"Idade Inserida",{{"Idade", each Duration.TotalDays(_) / 365, type number}}),
+				    #"Tipo Alterado3" = Table.TransformColumnTypes(#"Total de Anos Calculado",{{"Idade", Int64.Type}}),
+				    #"Coluna Condicional Adicionada" = Table.AddColumn(#"Tipo Alterado3", "Personalizar", each if [Idade] = null then "N/A" else if [Idade] <= 24 then "0 -24" else if [Idade] <= 34 then "25 - 34" else if [Idade] <= 44 then "35 - 44" else if [Idade] <= 54 then "45 - 54" else "55+"),
+				    #"Tipo Alterado4" = Table.TransformColumnTypes(#"Coluna Condicional Adicionada",{{"Personalizar", type text}}),
+				    #"Colunas Renomeadas" = Table.RenameColumns(#"Tipo Alterado4",{{"Personalizar", "Faixa Etária"}})
+				in
+				    #"Colunas Renomeadas"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

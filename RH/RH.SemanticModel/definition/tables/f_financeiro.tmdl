@@ -1,0 +1,96 @@
+table f_financeiro
+	lineageTag: 06e05458-e15a-4cb9-bc53-619632eac892
+
+	column Matricula
+		dataType: int64
+		formatString: 0
+		lineageTag: b98a78e4-91ca-4d77-abd5-d76b77fcc0dc
+		summarizeBy: none
+		sourceColumn: Matricula
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cargo
+		dataType: string
+		lineageTag: 46374833-46bf-40f0-a2ea-9c1000645201
+		summarizeBy: none
+		sourceColumn: Cargo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Mês Pag.'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 1166747f-60cd-43ee-9798-243054d93729
+		summarizeBy: none
+		sourceColumn: Mês Pag.
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Evento
+		dataType: int64
+		formatString: 0
+		lineageTag: b7068189-6617-4851-8f42-1ff33de8c663
+		summarizeBy: sum
+		sourceColumn: Evento
+
+		annotation SummarizationSetBy = Automatic
+
+	column Descrição
+		dataType: string
+		lineageTag: 6bd6c5fb-d975-44f0-91f4-a6fe33b29c6f
+		summarizeBy: none
+		sourceColumn: Descrição
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		dataType: string
+		lineageTag: c7a98a7f-4214-4478-845b-7a46a0db4e47
+		summarizeBy: none
+		sourceColumn: Tipo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Valor
+		dataType: double
+		lineageTag: c104ebd3-38b2-4b57-999d-9b63802fc92c
+		summarizeBy: sum
+		sourceColumn: Valor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Categoria
+		dataType: string
+		lineageTag: b0393b48-b206-4cf4-b8af-52dd6c770197
+		summarizeBy: none
+		sourceColumn: Categoria
+
+		annotation SummarizationSetBy = Automatic
+
+	partition f_financeiro = m
+		mode: import
+		source =
+				let
+				    Fonte = Folder.Files("C:\Users\alanz\Downloads\Desafio\BaseDados\Ficha Financeira"),
+				    #"Arquivos Ocultos Filtrados1" = Table.SelectRows(Fonte, each [Attributes]?[Hidden]? <> true),
+				    #"Invocar Função Personalizada1" = Table.AddColumn(#"Arquivos Ocultos Filtrados1", "Transformar Arquivo", each #"Transformar Arquivo"([Content])),
+				    #"Colunas Renomeadas1" = Table.RenameColumns(#"Invocar Função Personalizada1", {"Name", "Nome da Origem"}),
+				    #"Outras Colunas Removidas1" = Table.SelectColumns(#"Colunas Renomeadas1", {"Nome da Origem", "Transformar Arquivo"}),
+				    #"Coluna de Tabela Expandida1" = Table.ExpandTableColumn(#"Outras Colunas Removidas1", "Transformar Arquivo", Table.ColumnNames(#"Transformar Arquivo"(#"Arquivo de Amostra"))),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Coluna de Tabela Expandida1",{{"Nome da Origem", type text}, {"Matricula", Int64.Type}, {"Cargo", type text}, {"Mês Pag.", type date}, {"Evento", Int64.Type}, {"Descrição", type text}, {"Tipo", type text}, {"Valor", type number}}),
+				    #"Colunas Removidas" = Table.RemoveColumns(#"Tipo Alterado",{"Nome da Origem"}),
+				    #"Linhas Filtradas" = Table.SelectRows(#"Colunas Removidas", each [Matricula] <> null and [Matricula] <> ""),
+				    #"Coluna Condicional Adicionada" = Table.AddColumn(#"Linhas Filtradas", "Categoria", each if Text.Contains([Descrição], "Extra") then "Horas Extras" else if Text.Contains([Descrição], "Atest") then "Absenteísmo" else if Text.Contains([Descrição], "Falta") then "Absenteísmo" else if Text.Contains([Descrição], "Atraso") then "Absenteísmo" else if Text.Contains([Descrição], "Norma") then "Horas Normais" else "Outros"),
+				    #"Tipo Alterado1" = Table.TransformColumnTypes(#"Coluna Condicional Adicionada",{{"Categoria", type text}})
+				in
+				    #"Tipo Alterado1"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

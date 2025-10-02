@@ -1,0 +1,51 @@
+table pm_medidas
+	lineageTag: 5f798f5c-18bb-4b3b-91d9-b8aad1e35a75
+
+	column pm_medidas
+		lineageTag: ebce6087-ae3d-4e7e-a557-a69bc4450a2c
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'pm_medidas Pedido'
+
+		relatedColumnDetails
+			groupByColumn: 'pm_medidas Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'pm_medidas Campos'
+		isHidden
+		lineageTag: 41c33de6-ff70-4fea-9653-3d39ad0518eb
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'pm_medidas Pedido'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'pm_medidas Pedido'
+		isHidden
+		formatString: 0
+		lineageTag: 2699a77b-6749-4478-92bd-f7bfe0f09b65
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition pm_medidas = calculated
+		mode: import
+		source =
+				{
+				    ("Contratações", NAMEOF('medidas'[m_contratacao]), 0),
+				    ("Contratações Ruins", NAMEOF('medidas'[m_contratacao_ruim]), 1),
+				    ("Demissões", NAMEOF('medidas'[m_demisssoes]), 2),
+				    ("Headcount", NAMEOF('medidas'[m_headcount]), 3),
+				    ("Massa Salarial", NAMEOF('medidas'[m_massa_salarial]), 4)
+				}
+
+	annotation PBI_Id = d638c19dc72b4f3d94e43b0f69d79b80
+

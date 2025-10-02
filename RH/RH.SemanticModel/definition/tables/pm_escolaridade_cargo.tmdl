@@ -1,0 +1,48 @@
+table pm_escolaridade_cargo
+	lineageTag: 796a9757-7139-4aa3-ad57-a9fddb961c6d
+
+	column pm_escolaridade_cargo
+		lineageTag: 49d12626-cd6b-49d3-ab21-f2ea2d3fec43
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'pm_escolaridade_cargo Pedido'
+
+		relatedColumnDetails
+			groupByColumn: 'pm_escolaridade_cargo Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'pm_escolaridade_cargo Campos'
+		isHidden
+		lineageTag: 06e5dcd3-0d07-47c6-9d58-d88060d9cd97
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'pm_escolaridade_cargo Pedido'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'pm_escolaridade_cargo Pedido'
+		isHidden
+		formatString: 0
+		lineageTag: bf74ef06-f37b-4d27-aa32-646e73743f26
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition pm_escolaridade_cargo = calculated
+		mode: import
+		source =
+				{
+				    ("Escolaridade", NAMEOF('d_funcionario'[Escolaridade]), 0),
+				    ("Cargo Normalizado", NAMEOF('f_contrato'[Cargo Normalizado]), 1)
+				}
+
+	annotation PBI_Id = 820437f27b364aad994ecca8a199baaf
+

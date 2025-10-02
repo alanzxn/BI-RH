@@ -1,0 +1,57 @@
+expression Parâmetro1 = #"Arquivo de Amostra" meta [IsParameterQuery=true, BinaryIdentifier=#"Arquivo de Amostra", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: 3d1664e6-d3d8-4612-89ad-36470d701cb1
+	queryGroup: 'Transformar Arquivo de Ficha Financeira\Consultas Auxiliares'
+
+	annotation PBI_ResultType = Binary
+
+expression base_contratos =
+		let
+		    Fonte = Excel.Workbook(File.Contents("C:\Users\alanz\Downloads\Desafio\BaseDados\Contratos.xlsx"), null, true),
+		    Planilha1_Sheet = Fonte{[Item="Planilha1",Kind="Sheet"]}[Data],
+		    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Planilha1_Sheet, [PromoteAllScalars=true]),
+		    #"Tipo Alterado" = Table.TransformColumnTypes(#"Cabeçalhos Promovidos",{{"Cód Funcionário", Int64.Type}, {"Funcionário", type text}, {"Sexo", type text}, {"Data Admissão", type date}, {"Cód Cargo", Int64.Type}, {"Cargo", type text}, {"Data Cargo", type date}, {"Cód Escala", Int64.Type}, {"Escala", type text}, {"Cód C.Custo", type text}, {"Centro Custo", type text}, {"Cód T. Contrato", Int64.Type}, {"Tipo Contrato", type text}, {"Cód Estado Civil", Int64.Type}, {"Estado Civil", type text}, {"Cód Escolaridade", Int64.Type}, {"Escolaridade", type text}, {"Data Nascimento", type any}, {"Cód Nacionalidade", Int64.Type}, {"Nacionalidade", type text}, {"Cód Raça", Int64.Type}, {"Raça", type text}, {"Valor Salário", type number}, {"Data Salário", type date}, {"Cód Situação", Int64.Type}, {"Situação", type text}, {"Data Afastamento", type any}, {"Cód Causa Afastamento", Int64.Type}, {"Causa Afastamento", type text}})
+		in
+		    #"Tipo Alterado"
+	lineageTag: abe3c213-f2cb-4f4e-acd9-bde3889d6e55
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+
+expression 'Arquivo de Amostra' =
+		let
+		    Fonte = Folder.Files("C:\Users\alanz\Downloads\Desafio\BaseDados\Ficha Financeira"),
+		    Navegação1 = Fonte{0}[Content]
+		in
+		    Navegação1
+	lineageTag: 6b743115-a0e1-446c-9d9e-378888499ce7
+	queryGroup: 'Transformar Arquivo de Ficha Financeira\Consultas Auxiliares'
+
+	annotation PBI_ResultType = Binary
+
+expression 'Transformar o Arquivo de Exemplo' =
+		let
+		    Fonte = Csv.Document(Parâmetro1,[Delimiter=";", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true])
+		in
+		    #"Cabeçalhos Promovidos"
+	lineageTag: ea597a56-f4e6-4197-b9c1-3e5ee2bd0f0e
+	queryGroup: 'Transformar Arquivo de Ficha Financeira'
+
+	annotation PBI_ResultType = Table
+
+expression 'Transformar Arquivo' =
+		let
+		    Fonte = (Parâmetro1 as binary) => let
+		    Fonte = Csv.Document(Parâmetro1,[Delimiter=";", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+		    #"Cabeçalhos Promovidos" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true])
+		in
+		    #"Cabeçalhos Promovidos"
+		in
+		    Fonte
+	mAttributes: [ FunctionQueryBinding = "{""exemplarFormulaName"":""Transformar o Arquivo de Exemplo""}" ]
+	lineageTag: 3d3e7621-5302-4d71-a649-795e2a725d04
+	queryGroup: 'Transformar Arquivo de Ficha Financeira\Consultas Auxiliares'
+
+	annotation PBI_ResultType = Function
+

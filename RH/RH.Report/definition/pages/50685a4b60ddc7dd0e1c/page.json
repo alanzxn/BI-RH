@@ -1,0 +1,112 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "50685a4b60ddc7dd0e1c",
+  "displayName": "Geral",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "image": {
+            "image": {
+              "name": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Frame 1.svg'"
+                  }
+                }
+              },
+              "url": {
+                "expr": {
+                  "ResourcePackageItem": {
+                    "PackageName": "RegisteredResources",
+                    "PackageType": 1,
+                    "ItemName": "Frame_18936668697117928.svg"
+                  }
+                }
+              },
+              "scaling": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'Normal'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "2ebc5dc374e232073a0a",
+      "target": "b36fb5840b74de46cde8",
+      "type": "DataFilter"
+    },
+    {
+      "source": "b36fb5840b74de46cde8",
+      "target": "4a684137d9e6c9379db2",
+      "type": "DataFilter"
+    },
+    {
+      "source": "2ebc5dc374e232073a0a",
+      "target": "2b1c1e6c40e26eaa8416",
+      "type": "DataFilter"
+    },
+    {
+      "source": "2b1c1e6c40e26eaa8416",
+      "target": "2ebc5dc374e232073a0a",
+      "type": "DataFilter"
+    },
+    {
+      "source": "2b1c1e6c40e26eaa8416",
+      "target": "b36fb5840b74de46cde8",
+      "type": "DataFilter"
+    },
+    {
+      "source": "2b1c1e6c40e26eaa8416",
+      "target": "4a684137d9e6c9379db2",
+      "type": "DataFilter"
+    },
+    {
+      "source": "b36fb5840b74de46cde8",
+      "target": "2ebc5dc374e232073a0a",
+      "type": "DataFilter"
+    },
+    {
+      "source": "b36fb5840b74de46cde8",
+      "target": "2b1c1e6c40e26eaa8416",
+      "type": "DataFilter"
+    },
+    {
+      "source": "4a684137d9e6c9379db2",
+      "target": "2b1c1e6c40e26eaa8416",
+      "type": "DataFilter"
+    },
+    {
+      "source": "4a684137d9e6c9379db2",
+      "target": "2ebc5dc374e232073a0a",
+      "type": "DataFilter"
+    },
+    {
+      "source": "4a684137d9e6c9379db2",
+      "target": "b36fb5840b74de46cde8",
+      "type": "DataFilter"
+    },
+    {
+      "source": "2ebc5dc374e232073a0a",
+      "target": "4a684137d9e6c9379db2",
+      "type": "DataFilter"
+    }
+  ]
+}

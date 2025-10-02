@@ -1,0 +1,48 @@
+table pm_abs_extras
+	lineageTag: ce8ba31f-c305-48c2-94fd-4d4c7a5af21c
+
+	column pm_abs_extras
+		lineageTag: f88512ef-9538-469c-a88f-a60f15986ce3
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'pm_abs_extras Pedido'
+
+		relatedColumnDetails
+			groupByColumn: 'pm_abs_extras Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'pm_abs_extras Campos'
+		isHidden
+		lineageTag: 6e08d1c1-29cc-40f6-ad4b-2ee238a66d98
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'pm_abs_extras Pedido'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'pm_abs_extras Pedido'
+		isHidden
+		formatString: 0
+		lineageTag: cb6ee235-7475-46c8-8713-cbc2587db8df
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition pm_abs_extras = calculated
+		mode: import
+		source =
+				{
+				    ("Absenteísmo", NAMEOF('medidas'[m_absenteismo_%]), 0),
+				    ("Horas Extras", NAMEOF('medidas'[m_horas_extras_%]), 1)
+				}
+
+	annotation PBI_Id = 7404ae46d496478ab30c6daaf7e7f870
+

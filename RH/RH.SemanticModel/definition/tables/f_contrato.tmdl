@@ -1,0 +1,157 @@
+table f_contrato
+	lineageTag: 78275975-7169-4712-9096-4bef231ea07c
+
+	column 'Cód Funcionário'
+		dataType: int64
+		formatString: 0
+		lineageTag: 38e49f34-7a6a-4df4-8d8c-e348a1512009
+		summarizeBy: none
+		sourceColumn: Cód Funcionário
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Admissão'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b3e1e713-23e4-4123-b5f7-cef14c6f9f63
+		summarizeBy: none
+		sourceColumn: Data Admissão
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Cargo
+		dataType: string
+		lineageTag: 5034d047-0167-49db-b9c3-9274484bdd49
+		summarizeBy: none
+		sourceColumn: Cargo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Cargo'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4be09de3-edf1-411b-85eb-73212ddb3752
+		summarizeBy: none
+		sourceColumn: Data Cargo
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Escala
+		dataType: string
+		lineageTag: 7c51084d-f648-4634-978a-f0f9b3fc4408
+		summarizeBy: none
+		sourceColumn: Escala
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Centro Custo'
+		dataType: string
+		lineageTag: b6563b7a-ddab-4d05-b40a-497b8f409526
+		summarizeBy: none
+		sourceColumn: Centro Custo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tipo Contrato'
+		dataType: string
+		lineageTag: 8ab95ec8-6e20-49ba-8730-c9c9a6db1044
+		summarizeBy: none
+		sourceColumn: Tipo Contrato
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Valor Salário'
+		dataType: double
+		lineageTag: 59ece652-108b-4969-be10-7487f04f3e49
+		summarizeBy: sum
+		sourceColumn: Valor Salário
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Data Salário'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 8212699b-c29e-4a56-b343-9d54205e6eac
+		summarizeBy: none
+		sourceColumn: Data Salário
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Situação
+		dataType: string
+		lineageTag: 67db2737-f0d3-411c-be80-6fb3ee0f2574
+		summarizeBy: none
+		sourceColumn: Situação
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Data Afastamento'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 766144c1-147a-4d88-84df-176fb97f4eaa
+		summarizeBy: none
+		sourceColumn: Data Afastamento
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Causa Afastamento'
+		dataType: string
+		lineageTag: bf88c847-c60f-46eb-a363-b051d2cd0be5
+		summarizeBy: none
+		sourceColumn: Causa Afastamento
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Contratação Ruim' =
+			
+			IF(
+			    DATEDIFF(f_contrato[Data Admissão], f_contrato[Data Afastamento], DAY) < 60 && f_contrato[Situação] = "Demitido", "Contratação Ruim", "OK"
+			)
+		lineageTag: 81254984-8338-4cc7-aa6e-bb8c6484a229
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cargo Normalizado'
+		dataType: string
+		lineageTag: 667d510c-13fc-46ca-afe5-33a2e537ffaf
+		summarizeBy: none
+		sourceColumn: Cargo Normalizado
+
+		annotation SummarizationSetBy = Automatic
+
+	partition f_contrato = m
+		mode: import
+		source =
+				let
+				    Fonte = base_contratos,
+				    #"Outras Colunas Removidas" = Table.SelectColumns(Fonte,{"Cód Funcionário", "Data Admissão", "Cargo", "Data Cargo", "Escala", "Centro Custo", "Tipo Contrato", "Valor Salário", "Data Salário", "Situação", "Data Afastamento", "Causa Afastamento"}),
+				    #"Tipo Alterado" = Table.TransformColumnTypes(#"Outras Colunas Removidas",{{"Data Afastamento", type date}}),
+				    #"Erros Substituídos" = Table.ReplaceErrorValues(#"Tipo Alterado", {{"Data Afastamento", null}}),
+				    #"Texto Inserido Antes do Delimitador" = Table.AddColumn(#"Erros Substituídos", "Cargo Normalizado", each Text.BeforeDelimiter([Cargo], " "), type text),
+				    #"Valor Substituído" = Table.ReplaceValue(#"Texto Inserido Antes do Delimitador","OP.","OPERADOR",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído2" = Table.ReplaceValue(#"Valor Substituído","APL.","APLICADOR",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído4" = Table.ReplaceValue(#"Valor Substituído2","ENG.","ENGENHEIRO",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído5" = Table.ReplaceValue(#"Valor Substituído4","ENC.","ENCARREGADO",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído6" = Table.ReplaceValue(#"Valor Substituído5","CONTROLER","CONTROLADOR",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído1" = Table.ReplaceValue(#"Valor Substituído6","AUX.","AUX",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído3" = Table.ReplaceValue(#"Valor Substituído1","AUX","AUXILIAR",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído7" = Table.ReplaceValue(#"Valor Substituído3","AUXILIARILIAR","AUXILIAR",Replacer.ReplaceText,{"Cargo Normalizado"}),
+				    #"Valor Substituído8" = Table.ReplaceValue(#"Valor Substituído7","AUXILIARADM.JR","AUXILIARADM",Replacer.ReplaceText,{"Cargo Normalizado"})
+				in
+				    #"Valor Substituído8"
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

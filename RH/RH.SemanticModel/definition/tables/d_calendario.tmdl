@@ -1,0 +1,106 @@
+table d_calendario
+	lineageTag: 37f7b019-0bbf-4368-95b2-21ce1f90a920
+
+	column Data
+		formatString: Short Date
+		lineageTag: 46aaebcf-cbc7-4274-b61b-b21299ac2c64
+		summarizeBy: none
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Ano
+		formatString: 0
+		lineageTag: fd0d9d53-0c1a-42e8-ae3f-24ef13de66f6
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Ano]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Mês Número'
+		formatString: 0
+		lineageTag: fc2c3069-93f9-4063-9a8f-d32778785cc1
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Mês Número]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Mês Nome'
+		lineageTag: 291c55fc-5d34-4ff2-aa62-4286e6af5881
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Mês Nome]
+		sortByColumn: 'Mês Número'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ano-Mês
+		lineageTag: 382cd482-5494-4516-ae9f-c27f2b357163
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Ano-Mês]
+		sortByColumn: 'Mês Número'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Trimestre
+		lineageTag: a3e16043-7e8d-4a41-ba4d-1bf46886b077
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Trimestre]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Dia
+		formatString: 0
+		lineageTag: 8f24704f-75f5-44a1-8bfd-2e7d5332ad51
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Dia]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dia da Semana Número'
+		formatString: 0
+		lineageTag: 3c48a169-437c-482a-9f7b-ecb2f8e9caf0
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Dia da Semana Número]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Dia da Semana Nome'
+		lineageTag: c6c832c5-897f-4064-a399-c4e38b99991b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Dia da Semana Nome]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition d_calendario = calculated
+		mode: import
+		source = ```
+				
+				ADDCOLUMNS (
+				    CALENDAR (
+				        DATE ( YEAR ( MIN ( f_contrato[Data Admissão] ) ), 1, 1 ),
+				        DATE ( YEAR ( MAX ( f_contrato[Data Admissão] ) ), 12, 31 )
+				    ),
+				    "Ano", YEAR ( [Date] ),
+				    "Mês Número", MONTH ( [Date] ),
+				    "Mês Nome", FORMAT ( [Date], "MMMM" ),
+				    "Ano-Mês", FORMAT ( [Date], "YYYY-MM" ),
+				    "Trimestre", "T" & FORMAT ( [Date], "Q" ),
+				    "Dia", DAY ( [Date] ),
+				    "Dia da Semana Número", WEEKDAY ( [Date], 2 ),
+				    "Dia da Semana Nome", FORMAT ( [Date], "dddd" )
+				)
+				
+				```
+
+	annotation PBI_Id = e53dd9a2806f4383852fa0e10afe3576
+

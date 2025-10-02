@@ -1,0 +1,21 @@
+relationship fa1712b1-3b0b-708c-0b85-f6a704446640
+	fromColumn: f_contrato.'Cód Funcionário'
+	toColumn: d_funcionario.'Cód Funcionário'
+
+relationship a6f09e58-0361-1296-2037-574379c8d6fe
+	fromColumn: f_financeiro.Matricula
+	toColumn: d_funcionario.'Cód Funcionário'
+
+relationship 366bc09a-ac35-d43a-1deb-2be7dac12a9e
+	fromColumn: f_contrato.'Data Admissão'
+	toColumn: d_calendario.Data
+
+relationship 0a9a69c2-811c-9e84-abeb-45ecb9e0c2bc
+	fromColumn: f_financeiro.'Mês Pag.'
+	toColumn: d_calendario.Data
+
+relationship 673dd584-f5eb-ae15-1261-de51d07cc076
+	isActive: false
+	fromColumn: f_contrato.'Data Afastamento'
+	toColumn: d_calendario.Data
+
